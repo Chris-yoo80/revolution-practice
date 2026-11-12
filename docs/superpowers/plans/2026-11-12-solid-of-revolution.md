@@ -3477,7 +3477,7 @@ git commit -m "feat: 홈·탐구·문제 화면"
 - Create: `.github/workflows/deploy.yml`
 
 **Interfaces:**
-- Produces: main 브랜치에 push하면 테스트 → 빌드 → GitHub Pages 배포.
+- Produces: main 또는 master 브랜치에 push하면 테스트 → 빌드 → GitHub Pages 배포.
 
 **주의할 점 (시제품에서 확인함):**
 - `vite.config.ts`의 `base: './'`와 매니페스트 `start_url/scope: './'` 덕분에 저장소 이름과 상관없이 하위 경로에서 동작한다.
