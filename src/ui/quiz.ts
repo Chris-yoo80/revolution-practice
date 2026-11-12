@@ -70,7 +70,7 @@ export const quizScreen: Screen = (root, go) => {
         ),
         h('h3', {}, '난이도'),
         segmented<Difficulty>(
-          [{ value: 'basic', label: '기본' }, { value: 'advanced', label: '응용' }],
+          [{ value: 'basic', label: '기본' }, { value: 'advanced', label: '응용' }, { value: 'hard', label: '심화' }],
           difficulty,
           (d) => { difficulty = d; refreshBest(); },
         ),
