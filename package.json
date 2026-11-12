@@ -1,0 +1,30 @@
+{
+  "name": "revolution-practice",
+  "private": true,
+  "version": "1.0.0",
+  "description": "중1 도형 회전체 연습 앱 (PWA)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p . && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc -p .",
+    "icons": "pwa-assets-generator --preset minimal-2023 public/icon.svg"
+  },
+  "dependencies": {
+    "polygon-clipping": "^0.15.7",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.187.0",
+    "@vite-pwa/assets-generator": "^2.0.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "rollup": "npm:@rollup/wasm-node@4.68.2"
+  }
+}
