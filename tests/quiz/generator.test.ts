@@ -19,6 +19,7 @@ const cases: [QuizType, Difficulty][] = [
   ['A', 'basic'], ['A', 'advanced'],
   ['B', 'basic'], ['B', 'advanced'],
   ['C', 'basic'], ['C', 'advanced'],
+  ['A', 'hard'], ['B', 'hard'], ['C', 'hard'],
 ];
 
 describe('generateQuestion', () => {

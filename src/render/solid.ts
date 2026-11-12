@@ -188,7 +188,8 @@ export function fitCamera(camera: THREE.PerspectiveCamera, bounds: Bounds3, cent
   // 회전체를 감싸는 구가 화면 세로에 여유 있게 들어가도록 거리를 정한다
   const sphere = Math.max(Math.hypot(bounds.radius, (bounds.maxH - bounds.minH) / 2), 0.5);
   const dist = (sphere / Math.sin(((camera.fov / 2) * Math.PI) / 180)) * 1.35;
-  const dir = new THREE.Vector3(1, 0.75, 1.4).normalize();
+  // 약 16° 위에서 본다. 더 높으면 회전체 아래쪽 원뿔이 바닥 테두리에 가려진다.
+  const dir = new THREE.Vector3(1, 0.5, 1.4).normalize();
   const target = new THREE.Vector3(0, centerH, 0);
   camera.position.copy(target).addScaledVector(dir, dist);
   camera.near = dist / 100;

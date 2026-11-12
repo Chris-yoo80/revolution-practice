@@ -64,6 +64,12 @@ export const PRESETS: Preset[] = [
   },
   { id: 'off-rect', label: '축에서 떨어진 직사각형', editable: true, figure: { pieces: [rectangle(1, 0, 2, 4)], axis: vAxis } },
   {
+    id: 'slant-trap',
+    label: '기울어진 사다리꼴',
+    editable: true,
+    figure: { pieces: [[[1, 0], [4, 0], [5, 3], [3, 3]]], axis: vAxis },
+  },
+  {
     id: 'stairs',
     label: '계단 모양',
     editable: true,
