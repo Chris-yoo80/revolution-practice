@@ -1,4 +1,3 @@
-import { fromAxisPoint, halfProfile } from '../geometry/profile.ts';
 import type { Axis, AxisDir, Figure, Ring, Vec2 } from '../geometry/types.ts';
 import { validateRing } from '../geometry/validate.ts';
 import { COLORS_2D, drawGrid, drawRings, toScreen, toWorld, type View } from '../render/draw2d.ts';
@@ -224,10 +223,7 @@ export class GridEditor {
     drawGrid(ctx, view);
 
     if (this.figure) {
-      // 접힌 반쪽 단면(실제로 회전체를 결정하는 부분)을 옅게 먼저 그린다
-      const half = halfProfile({ pieces: this.figure.pieces, axis: this.axis });
-      const halfRings = half.flat().map((ring) => ring.map((q) => fromAxisPoint(q, this.axis)));
-      drawRings(ctx, view, halfRings, 'rgba(124, 92, 255, 0.18)', 'rgba(124, 92, 255, 0.5)');
+      // 학생이 그린 도형만 그린다. (축 반대편으로 접은 모양을 겹쳐 그리면 그리지 않은 도형이 생긴 것처럼 보인다)
       drawRings(ctx, view, this.figure.pieces, COLORS_2D.figureFill, COLORS_2D.figureStroke);
       if (this.editable) {
         ctx.fillStyle = COLORS_2D.figureStroke;
