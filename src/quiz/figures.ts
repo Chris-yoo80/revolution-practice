@@ -133,13 +133,53 @@ const hard: Builder[] = [
   },
 ];
 
-/** 난이도에 맞는 무작위 도형. 절반은 가로축으로 돌려 놓는다. */
+/** 심화: 도형의 비스듬한 변을 회전축으로 삼는 도형들. 조각과 축(oblique)을 함께 돌려준다. */
+const obliqueHard: ((rng: Rng) => Figure)[] = [
+  // 직각삼각형을 빗변을 축으로 (원뿔 두 개가 밑면끼리 붙은 모양)
+  (rng) => {
+    const a = randInt(rng, 2, 4);
+    const b = randInt(rng, 2, 4);
+    return { pieces: [[[0, 0], [a, 0], [0, b]]], axis: { dir: 'oblique', p: [a, 0], q: [0, b] } };
+  },
+  // 삼각형을 비스듬한 한 변을 축으로
+  (rng) => {
+    const w = randInt(rng, 2, 4);
+    const h = randInt(rng, 2, 4);
+    const c = pick(rng, [-1, 1, w + 1].filter((v) => v !== 0 && v !== w));
+    return { pieces: [[[0, 0], [w, 0], [c, h]]], axis: { dir: 'oblique', p: [0, 0], q: [c, h] } };
+  },
+  // 직각사다리꼴을 기울어진 다리를 축으로
+  (rng) => {
+    const w1 = randInt(rng, 3, 4);
+    const w2 = randInt(rng, 1, w1 - 1);
+    const h = randInt(rng, 2, 3);
+    return { pieces: [[[0, 0], [w1, 0], [w2, h], [0, h]]], axis: { dir: 'oblique', p: [w1, 0], q: [w2, h] } };
+  },
+  // 평행사변형을 비스듬한 변을 축으로
+  (rng) => {
+    const w = randInt(rng, 2, 3);
+    const s = randInt(rng, 1, 2);
+    const h = randInt(rng, 2, 3);
+    return { pieces: [[[0, 0], [w, 0], [w + s, h], [s, h]]], axis: { dir: 'oblique', p: [0, 0], q: [s, h] } };
+  },
+];
+
+const swapXY = ([x, y]: Vec2): Vec2 => [y, x];
+
+/** 난이도에 맞는 무작위 도형. 절반은 x·y를 맞바꿔(대각선 대칭) 축 방향을 바꾼다. */
 export function randomFigure(difficulty: Difficulty, rng: Rng): Figure {
+  if (difficulty === 'hard' && rng() < 0.4) {
+    const f = pick(rng, obliqueHard)(rng);
+    if (rng() < 0.5 || f.axis.dir !== 'oblique') return f;
+    return {
+      pieces: f.pieces.map((ring) => ring.map(swapXY)),
+      axis: { dir: 'oblique', p: swapXY(f.axis.p), q: swapXY(f.axis.q) },
+    };
+  }
   const pool = difficulty === 'basic' ? basic : difficulty === 'advanced' ? advanced : hard;
   const pieces = pick(rng, pool)(rng);
   if (rng() < 0.5) {
     return { pieces, axis: { dir: 'vertical', pos: 0 } };
   }
-  const swapped = pieces.map((ring) => ring.map(([x, y]) => [y, x] as Vec2));
-  return { pieces: swapped, axis: { dir: 'horizontal', pos: 0 } };
+  return { pieces: pieces.map((ring) => ring.map(swapXY)), axis: { dir: 'horizontal', pos: 0 } };
 }

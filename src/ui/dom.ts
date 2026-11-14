@@ -45,3 +45,10 @@ export function segmented<T extends string>(
   wrap.append(...buttons);
   return wrap;
 }
+
+/** segmented 묶음의 선택 표시만 바꾼다(onSelect는 부르지 않음). */
+export function selectSegment(wrap: HTMLElement, value: string): void {
+  wrap.querySelectorAll<HTMLButtonElement>('button.seg').forEach((b) => {
+    b.classList.toggle('active', b.dataset.value === value);
+  });
+}

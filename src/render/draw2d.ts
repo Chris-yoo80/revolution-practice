@@ -1,5 +1,6 @@
 import { bbox, ringsToMulti } from '../geometry/polygon.ts';
-import type { Figure, MultiPolygon, Ring } from '../geometry/types.ts';
+import { axisPoints } from '../geometry/profile.ts';
+import type { Axis, Figure, MultiPolygon, Ring } from '../geometry/types.ts';
 
 export const COLORS_2D = {
   bg: '#ffffff',
@@ -75,33 +76,52 @@ export function drawRings(ctx: CanvasRenderingContext2D, v: View, rings: Ring[],
   ctx.stroke();
 }
 
+/** 축을 화면 끝에서 끝까지 이어지는 직선으로 그릴 두 화면 점. */
+export function axisScreenLine(v: View, axis: Axis): [[number, number], [number, number]] {
+  const [a, b] = axisPoints(axis);
+  const [ax, ay] = toScreen(v, a[0], a[1]);
+  const [bx, by] = toScreen(v, b[0], b[1]);
+  const len = Math.hypot(bx - ax, by - ay) || 1;
+  const far = (v.width + v.height) * 2;
+  const ux = (bx - ax) / len;
+  const uy = (by - ay) / len;
+  return [[ax - ux * far, ay - uy * far], [ax + ux * far, ay + uy * far]];
+}
+
 export function drawAxis(ctx: CanvasRenderingContext2D, v: View, figure: Figure): void {
+  const [[x1, y1], [x2, y2]] = axisScreenLine(v, figure.axis);
   ctx.save();
   ctx.strokeStyle = COLORS_2D.axis;
   ctx.lineWidth = 2.5;
   ctx.setLineDash([10, 4, 2, 4]);
   ctx.beginPath();
-  if (figure.axis.dir === 'vertical') {
-    const [px] = toScreen(v, figure.axis.pos, 0);
-    ctx.moveTo(px, 0);
-    ctx.lineTo(px, v.height);
-  } else {
-    const [, py] = toScreen(v, 0, figure.axis.pos);
-    ctx.moveTo(0, py);
-    ctx.lineTo(v.width, py);
-  }
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
   ctx.stroke();
   ctx.restore();
 }
 
+/** 도형과 (세로·가로축이면 축 위치, 비스듬한 축이면 축을 정한 두 점)을 담는 범위. */
+function figureBounds(figure: Figure): { minX: number; minY: number; maxX: number; maxY: number } {
+  const b = bbox(ringsToMulti(figure.pieces));
+  const ax = figure.axis;
+  if (ax.dir === 'oblique') {
+    const xs = [b.minX, b.maxX, ax.p[0], ax.q[0]];
+    const ys = [b.minY, b.maxY, ax.p[1], ax.q[1]];
+    return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+  }
+  return {
+    minX: ax.dir === 'vertical' ? Math.min(b.minX, ax.pos) : b.minX,
+    maxX: ax.dir === 'vertical' ? Math.max(b.maxX, ax.pos) : b.maxX,
+    minY: ax.dir === 'horizontal' ? Math.min(b.minY, ax.pos) : b.minY,
+    maxY: ax.dir === 'horizontal' ? Math.max(b.maxY, ax.pos) : b.maxY,
+  };
+}
+
 /** 도형 + 축 범위를 담는 세계 좌표 크기(가로·세로 중 큰 값). 보기들의 축척을 맞출 때 쓴다. */
 export function figureExtent(figure: Figure): number {
-  const b = bbox(ringsToMulti(figure.pieces));
-  const minX = figure.axis.dir === 'vertical' ? Math.min(b.minX, figure.axis.pos) : b.minX;
-  const maxX = figure.axis.dir === 'vertical' ? Math.max(b.maxX, figure.axis.pos) : b.maxX;
-  const minY = figure.axis.dir === 'horizontal' ? Math.min(b.minY, figure.axis.pos) : b.minY;
-  const maxY = figure.axis.dir === 'horizontal' ? Math.max(b.maxY, figure.axis.pos) : b.maxY;
-  return Math.max(maxX - minX, maxY - minY);
+  const b = figureBounds(figure);
+  return Math.max(b.maxX - b.minX, b.maxY - b.minY);
 }
 
 export function sectionExtent(shape: MultiPolygon): number {
@@ -112,12 +132,7 @@ export function sectionExtent(shape: MultiPolygon): number {
 /** 도형+축 그림을 캔버스에 그린다. unitsAcross: 캔버스 짧은 변에 들어갈 세계 단위 수. */
 export function paintFigure(canvas: HTMLCanvasElement, figure: Figure, unitsAcross: number): void {
   const ctx = canvas.getContext('2d')!;
-  const b = bbox(ringsToMulti(figure.pieces));
-  const ax = figure.axis;
-  const minX = ax.dir === 'vertical' ? Math.min(b.minX, ax.pos) : b.minX;
-  const maxX = ax.dir === 'vertical' ? Math.max(b.maxX, ax.pos) : b.maxX;
-  const minY = ax.dir === 'horizontal' ? Math.min(b.minY, ax.pos) : b.minY;
-  const maxY = ax.dir === 'horizontal' ? Math.max(b.maxY, ax.pos) : b.maxY;
+  const { minX, minY, maxX, maxY } = figureBounds(figure);
   const v: View = {
     cx: (minX + maxX) / 2,
     cy: (minY + maxY) / 2,
