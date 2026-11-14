@@ -3,11 +3,11 @@ import { halfProfile } from '../geometry/profile.ts';
 import { annuliToShape, axialSection, perpendicularSection } from '../geometry/sections.ts';
 import { PRESETS } from '../geometry/shapes.ts';
 import type { HalfProfile } from '../geometry/types.ts';
-import { type AxisMode, GridEditor } from '../editor/gridEditor.ts';
+import { AXIS_HINT, GridEditor } from '../editor/gridEditor.ts';
 import { paintSection } from '../render/draw2d.ts';
 import { profileBounds } from '../render/solid.ts';
 import { SolidViewer } from '../render/viewer.ts';
-import { feedbackAnchor, h, segmented, selectSegment } from './dom.ts';
+import { feedbackAnchor, h, segmented } from './dom.ts';
 import type { Screen } from './router.ts';
 
 type SectionKind = 'none' | 'axial' | 'perpendicular';
@@ -32,17 +32,7 @@ export const exploreScreen: Screen = (root, go) => {
   let animFrame = 0;
 
   const viewer = new SolidViewer(viewerBox);
-  const axisControl = segmented<AxisMode>(
-    [
-      { value: 'vertical', label: '세로' },
-      { value: 'horizontal', label: '가로' },
-      { value: 'oblique', label: '비스듬히' },
-    ],
-    'vertical',
-    (mode) => editor.setAxisMode(mode),
-  );
   const editor = new GridEditor(gridCanvas, {
-    onAxisModeChange: (mode) => selectSegment(axisControl, mode),
     onChange: (f) => {
       profile = f ? halfProfile(f) : [];
       viewer.setFigure(f);
@@ -145,9 +135,11 @@ export const exploreScreen: Screen = (root, go) => {
             h('button.tool', { type: 'button', onclick: () => editor.startDrawing() }, '✏️ 직접 그리기'),
             h('button.tool', { type: 'button', onclick: () => { message.textContent = ''; editor.clear(); } }, '지우기'),
             h('span.row-label', {}, '회전축'),
-            axisControl,
+            h('button.tool', { type: 'button', onclick: () => editor.setAxisPreset('vertical') }, '세로축'),
+            h('button.tool', { type: 'button', onclick: () => editor.setAxisPreset('horizontal') }, '가로축'),
           ),
           h('div.grid-wrap', {}, gridCanvas),
+          h('p.hint', {}, h('span.handle-dot', { 'aria-hidden': 'true' }), ' ', AXIS_HINT),
           message,
         ),
         h('section.panel.panel-3d',
