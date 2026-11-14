@@ -11,6 +11,7 @@ describe('classify', () => {
   it.each([
     ['rect', '원기둥'],
     ['tri', '원뿔'],
+    ['tri-hyp', '원뿔 + 원뿔'],
     ['trap', '원뿔대'],
     ['semi', '구'],
     ['circle', '가운데가 빈 회전체'],

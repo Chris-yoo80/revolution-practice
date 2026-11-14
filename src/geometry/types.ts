@@ -7,11 +7,12 @@ export type Polygon = Ring[];
 export type MultiPolygon = Polygon[];
 
 export type AxisDir = 'vertical' | 'horizontal';
-/** vertical: 직선 x = pos, horizontal: 직선 y = pos */
-export interface Axis {
-  dir: AxisDir;
-  pos: number;
-}
+/**
+ * 회전축.
+ * - vertical: 직선 x = pos, horizontal: 직선 y = pos
+ * - oblique: 두 점 p, q를 지나는 직선(비스듬한 축, 예: 직각삼각형의 빗변)
+ */
+export type Axis = { dir: AxisDir; pos: number } | { dir: 'oblique'; p: Vec2; q: Vec2 };
 
 /** 학생이 보는 평면도형(모눈 좌표) + 회전축. pieces는 서로 붙어 있을 수 있는 단순 다각형들. */
 export interface Figure {

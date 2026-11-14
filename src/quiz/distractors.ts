@@ -1,5 +1,5 @@
 import { bbox, mapPoints, rect, ringsToMulti, union } from '../geometry/polygon.ts';
-import { figureInAxisFrame, fromAxisPoint, halfProfile } from '../geometry/profile.ts';
+import { axisPoints, axisThrough, figureInAxisFrame, fromAxisPoint, halfProfile } from '../geometry/profile.ts';
 import { annuliToShape, axialSection, perpendicularSection, safeCutHeights } from '../geometry/sections.ts';
 import type { Axis, Figure, HalfProfile, MultiPolygon, Ring, Vec2 } from '../geometry/types.ts';
 import type { Rng } from './rng.ts';
@@ -27,7 +27,17 @@ export const WHY = {
   random: '전혀 다른 도형에서 만든 모양이에요.',
 };
 
-/** 도형의 바운딩 박스 네 변 중 현재 축이 아닌 축들. */
+/** 두 축이 같은 직선인지. */
+function sameLine(a: Axis, b: Axis): boolean {
+  const [p, q] = axisPoints(a);
+  const onA = ([x, y]: Vec2) => Math.abs((q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0])) < 1e-9;
+  return axisPoints(b).every(onA);
+}
+
+/**
+ * '다른 변을 축으로' 오답에 쓸 축들: 도형을 감싸는 상자의 네 변,
+ * 그리고 지금 축이 비스듬하면 도형의 모든 변. 현재 축과 같은 직선은 뺀다.
+ */
 export function alternativeAxes(figure: Figure): Axis[] {
   const b = bbox(ringsToMulti(figure.pieces));
   const all: Axis[] = [
@@ -36,7 +46,17 @@ export function alternativeAxes(figure: Figure): Axis[] {
     { dir: 'horizontal', pos: b.minY },
     { dir: 'horizontal', pos: b.maxY },
   ];
-  return all.filter((a) => !(a.dir === figure.axis.dir && a.pos === figure.axis.pos));
+  if (figure.axis.dir === 'oblique') {
+    for (const ring of figure.pieces) {
+      ring.forEach((pt, i) => all.push(axisThrough(pt, ring[(i + 1) % ring.length])));
+    }
+  }
+  const out: Axis[] = [];
+  for (const a of all) {
+    if (sameLine(a, figure.axis) || out.some((o) => sameLine(o, a))) continue;
+    out.push(a);
+  }
+  return out;
 }
 
 /** 축 좌표에서 도형을 바꾼 뒤 모눈 좌표로 되돌린다. */
@@ -67,8 +87,16 @@ export function filledProfile(profile: HalfProfile): HalfProfile {
   return union(profile, rect(0, b.minY, b.minX, b.maxY));
 }
 
-function figureMinR(figure: Figure): number {
-  return bbox(ringsToMulti(figureInAxisFrame(figure))).minX;
+/**
+ * 도형이 축의 어느 쪽(sign)에 있는지와 축까지 가장 가까운 거리(gap).
+ * 축이 도형을 가로지르면 null. 비스듬한 축에서는 도형이 r < 0 쪽에 놓일 수도 있다.
+ */
+function figureSide(figure: Figure): { sign: 1 | -1; gap: number } | null {
+  const b = bbox(ringsToMulti(figureInAxisFrame(figure)));
+  const EPS = 1e-9;
+  if (b.minX >= -EPS) return { sign: 1, gap: b.minX > EPS ? b.minX : 0 };
+  if (b.maxX <= EPS) return { sign: -1, gap: b.maxX < -EPS ? -b.maxX : 0 };
+  return null;
 }
 
 function withoutPiece(figure: Figure, i: number): Figure {
@@ -104,11 +132,11 @@ export function figureCandidates(figure: Figure): Choice[] {
     out.push({ visual: { kind: 'figure', figure: { pieces: figure.pieces, axis } }, why: WHY.figOtherAxis });
   }
   out.push({ visual: { kind: 'figure', figure: mirroredFigure(figure) }, why: WHY.mirrored });
-  const minR = figureMinR(figure);
-  if (minR > 0) {
-    out.push({ visual: { kind: 'figure', figure: shiftedFigure(figure, -minR) }, why: WHY.figToward });
-  } else {
-    out.push({ visual: { kind: 'figure', figure: shiftedFigure(figure, 1) }, why: WHY.figAway });
+  const side = figureSide(figure);
+  if (side && side.gap > 0) {
+    out.push({ visual: { kind: 'figure', figure: shiftedFigure(figure, -side.sign * side.gap) }, why: WHY.figToward });
+  } else if (side) {
+    out.push({ visual: { kind: 'figure', figure: shiftedFigure(figure, side.sign) }, why: WHY.figAway });
   }
   if (figure.pieces.length > 1) {
     figure.pieces.forEach((_, i) => {

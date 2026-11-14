@@ -53,6 +53,12 @@ const vAxis = { dir: 'vertical' as const, pos: 0 };
 export const PRESETS: Preset[] = [
   { id: 'rect', label: '직사각형', editable: true, figure: { pieces: [rectangle(0, 0, 3, 5)], axis: vAxis } },
   { id: 'tri', label: '직각삼각형', editable: true, figure: { pieces: [[[0, 0], [3, 0], [0, 5]]], axis: vAxis } },
+  {
+    id: 'tri-hyp',
+    label: '직각삼각형 (빗변이 축)',
+    editable: true,
+    figure: { pieces: [[[0, 0], [3, 0], [0, 4]]], axis: { dir: 'oblique', p: [3, 0], q: [0, 4] } },
+  },
   { id: 'trap', label: '사다리꼴', editable: true, figure: { pieces: [[[0, 0], [4, 0], [2, 4], [0, 4]]], axis: vAxis } },
   { id: 'semi', label: '반원', editable: false, figure: { pieces: [semicircle(0, 3, 3, 'right')], axis: vAxis } },
   { id: 'circle', label: '원 (축에서 떨어짐)', editable: false, figure: { pieces: [circle(3, 3, 1.5)], axis: vAxis } },
