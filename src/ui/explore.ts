@@ -7,7 +7,7 @@ import { type AxisMode, GridEditor } from '../editor/gridEditor.ts';
 import { paintSection } from '../render/draw2d.ts';
 import { profileBounds } from '../render/solid.ts';
 import { SolidViewer } from '../render/viewer.ts';
-import { h, segmented, selectSegment } from './dom.ts';
+import { feedbackAnchor, h, segmented, selectSegment } from './dom.ts';
 import type { Screen } from './router.ts';
 
 type SectionKind = 'none' | 'axial' | 'perpendicular';
@@ -134,7 +134,7 @@ export const exploreScreen: Screen = (root, go) => {
   root.append(
     h('main.explore',
       {},
-      h('header.topbar', {}, h('button.back', { type: 'button', onclick: () => go('home') }, '← 홈'), h('h2', {}, '탐구하기')),
+      h('header.topbar', {}, h('button.back', { type: 'button', onclick: () => go('home') }, '← 홈'), h('h2', {}, '탐구하기'), feedbackAnchor('탐구하기')),
       h('div.explore-body',
         {},
         h('section.panel.panel-2d',

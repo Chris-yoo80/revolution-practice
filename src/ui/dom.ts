@@ -1,3 +1,6 @@
+import { APP_VERSION, FEEDBACK_FORM } from '../config.ts';
+import { feedbackLink } from '../feedback.ts';
+
 /** 작은 DOM 도우미. h('button.primary', { onclick }, '텍스트') */
 export function h<K extends keyof HTMLElementTagNameMap>(
   tagAndClass: K | `${K}.${string}`,
@@ -44,6 +47,13 @@ export function segmented<T extends string>(
   btn(initial).classList.add('active');
   wrap.append(...buttons);
   return wrap;
+}
+
+/** '의견 보내기' 링크. 의견 폼이 설정되지 않았으면 null(보이지 않음). */
+export function feedbackAnchor(screen: string): HTMLAnchorElement | null {
+  const href = feedbackLink(FEEDBACK_FORM, APP_VERSION, screen);
+  if (!href) return null;
+  return h('a.feedback', { href, target: '_blank', rel: 'noopener' }, '💬 의견 보내기');
 }
 
 /** segmented 묶음의 선택 표시만 바꾼다(onSelect는 부르지 않음). */

@@ -2,7 +2,7 @@ import type { Difficulty } from '../quiz/figures.ts';
 import { bestKey, loadBest, type QuizMode, QuizSession, saveBest } from '../quiz/session.ts';
 import type { QuizType } from '../quiz/types.ts';
 import { SolidViewer } from '../render/viewer.ts';
-import { h, segmented } from './dom.ts';
+import { feedbackAnchor, h, segmented } from './dom.ts';
 import type { Screen } from './router.ts';
 import { questionScale, visualImage } from './visuals.ts';
 
@@ -34,7 +34,7 @@ export const quizScreen: Screen = (root, go) => {
   root.append(
     h('main.quiz',
       {},
-      h('header.topbar', {}, h('button.back', { type: 'button', onclick: () => go('home') }, '← 홈'), h('h2', {}, '문제 풀기')),
+      h('header.topbar', {}, h('button.back', { type: 'button', onclick: () => go('home') }, '← 홈'), h('h2', {}, '문제 풀기'), feedbackAnchor('문제 풀기')),
       body,
     ),
   );

@@ -1,4 +1,5 @@
-import { h } from './dom.ts';
+import { APP_VERSION, HUB_URL } from '../config.ts';
+import { feedbackAnchor, h } from './dom.ts';
 import type { Screen } from './router.ts';
 
 export const homeScreen: Screen = (root, go) => {
@@ -14,6 +15,12 @@ export const homeScreen: Screen = (root, go) => {
           h('span.big-icon', {}, '🔄'), h('span', {}, '탐구하기'), h('small', {}, '도형을 골라 직접 돌려 보기')),
         h('button.big.secondary', { type: 'button', onclick: () => go('quiz') },
           h('span.big-icon', {}, '✏️'), h('span', {}, '문제 풀기'), h('small', {}, '회전체·원래 도형·단면 맞히기')),
+      ),
+      h('footer.home-footer',
+        {},
+        h('a.hub-link', { href: HUB_URL }, '🧰 수학 도구 상자'),
+        feedbackAnchor('홈'),
+        h('span.version', {}, `v${APP_VERSION}`),
       ),
     ),
   );
