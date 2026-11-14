@@ -1,10 +1,14 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
   // 상대 경로: GitHub Pages 하위 경로(/저장소이름/)에서도 그대로 동작
   base: './',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
