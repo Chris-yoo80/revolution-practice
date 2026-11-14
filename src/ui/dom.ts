@@ -55,10 +55,3 @@ export function feedbackAnchor(screen: string): HTMLAnchorElement | null {
   if (!href) return null;
   return h('a.feedback', { href, target: '_blank', rel: 'noopener' }, '💬 의견 보내기');
 }
-
-/** segmented 묶음의 선택 표시만 바꾼다(onSelect는 부르지 않음). */
-export function selectSegment(wrap: HTMLElement, value: string): void {
-  wrap.querySelectorAll<HTMLButtonElement>('button.seg').forEach((b) => {
-    b.classList.toggle('active', b.dataset.value === value);
-  });
-}

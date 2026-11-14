@@ -121,3 +121,5 @@ button:disabled { opacity: 0.45; cursor: default; }
 .home-footer a { color: var(--primary); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
 .version { font-variant-numeric: tabular-nums; }
 .topbar .feedback { margin-left: auto; min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 15px; }
+.hint { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.handle-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--no); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--no); vertical-align: -1px; }
